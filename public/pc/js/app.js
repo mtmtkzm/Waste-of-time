@@ -1,2 +1,0 @@
-!function(t){function e(i){if(r[i])return r[i].exports;var o=r[i]={exports:{},id:i,loaded:!1};return t[i].call(o.exports,o,o.exports,e),o.loaded=!0,o.exports}var r={};return e.m=t,e.c=r,e.p="",e(0)}([function(t,e){"use strict";$("#stage").get(0).width=$(window).width(),$("#stage").get(0).height=$(window).height()}]);
-//# sourceMappingURL=maps/app.map
