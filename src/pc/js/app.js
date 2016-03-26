@@ -5,5 +5,5 @@
 // }
 // new Main();
 
-$( '#canvas' ).get( 0 ).width = $( window ).width();
-$( '#canvas' ).get( 0 ).height = $( window ).height();
+$( '#stage' ).get( 0 ).width = $( window ).width();
+$( '#stage' ).get( 0 ).height = $( window ).height();
