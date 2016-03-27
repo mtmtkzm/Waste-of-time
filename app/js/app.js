@@ -96,5 +96,4 @@ function playGame () {
 
 function endGame (score) {
 	console.log('your score:' + score);
-
 }
