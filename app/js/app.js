@@ -5,7 +5,6 @@ var wh = $(window).height();
 $('#stage').get(0).width = ww;
 $('#stage').get(0).height = wh;
 
-
 /* グローバル変数
 ------------------------------ */
 var stage; // canvas
@@ -15,16 +14,12 @@ var w, h; // canvasの幅と高
 ------------------------------ */
 init();
 function init () {
-	// stageをよみこむ
 	stage = new createjs.Stage('stage');
-
 	w = stage.canvas.width;
 	h = stage.canvas.height;
-
 	manifest = [
 		{src: 'enemy/enemy.png', id: 'enemy'}
 	];
-
 	loader = new createjs.LoadQueue(false);
 	loader.addEventListener('complete', handleComplete);
 	loader.loadManifest(manifest, true, '../assets/');
@@ -32,6 +27,13 @@ function init () {
 
 function handleComplete () {
 	startGame();
+}
+
+/* tickの処理（ステージを常に更新する）
+------------------------------ */
+createjs.Ticker.addEventListener('tick', tick);
+function tick (event) {
+	stage.update();
 }
 
 /* ゲーム画面
@@ -43,15 +45,22 @@ function startGame () {
 function playGame () {
 	var score = 0; // スコア初期値
 	var enemy; // 敵の画像情報
+	var gameover = false;
 
-	createEnemy();
+	// 敵生成
+	if (gameover) {
+		endGame();
+	} else {
+		createEnemy();
+	}
+
+	// スコア表示
 	countScore();
 
-	//　クリックイベントを追加する
+	// クリックイベントを追加する
 	stage.addEventListener('click', removeEnemy);
 
-
-	// 等間隔で敵を生成する
+	// 定期的に敵を生成する
 	function createEnemy () {
 		enemy = new createjs.Bitmap(loader.getResult('enemy'));
 		enemy.x = Math.random() * ww;
@@ -63,13 +72,13 @@ function playGame () {
 	// 敵をタップで削除する
 	function removeEnemy () {
 		stage.removeChild(enemy);
-		score ++; // スコアを加算
+		score++; // スコアを加算
 		countScore();
 	}
 
 	// スコアをカウントする
-	function countScore() {
-		scoreArea = new createjs.Text(score, 'bold 42px Arial', '#ddd');
+	function countScore () {
+		scoreArea = new createjs.Text('', 'bold 42px Arial', '#ddd');
 		scoreArea.x = w / 2;
 		scoreArea.y = 10;
 		scoreArea.textAlign = 'center';
@@ -77,20 +86,14 @@ function playGame () {
 		stage.addChild(scoreArea);
 	}
 
+	// ゲームオーバー判定
 	function judgeGameover () {
-		console.log('judge!');
-		endGame(score);
+
 	}
+	// 常に監視しておく
+	createjs.Ticker.addEventListener('tick', judgeGameover);
 }
 
 function endGame (score) {
 	console.log('your score:', score);
-
-}
-
-/* tickの処理（ステージを常に更新する）
------------------------------- */
-createjs.Ticker.addEventListener('tick', tick);
-function tick (event) {
-	stage.update();
 }
