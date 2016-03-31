@@ -12,7 +12,8 @@ var w, h; // canvasの幅と高
 
 /* initialize
 ------------------------------ */
-function init () {
+initialize();
+function initialize () {
 	stage = new createjs.Stage('stage');
 	w = stage.canvas.width;
 	h = stage.canvas.height;
@@ -23,7 +24,6 @@ function init () {
 	loader.addEventListener('complete', handleComplete);
 	loader.loadManifest(manifest, true, '../assets/');
 }
-init();
 
 function handleComplete () {
 	startGame();
@@ -43,74 +43,69 @@ function startGame () {
 }
 
 function playGame () {
+	// コンテナを準備
     var container = new createjs.Container();
     stage.addChild(container);
-	var score = 0;
-	var interval = 1500;
-	var enemy;
-	var birthday;
-	var gameover = false;
 
-	// 敵生成
+	var interval = 1500; // 敵生成の間隔
+	var score = 0; // スコア
+
+	var enemy;
+	var enemylife = false; // 敵の命有無
+	var gameover = false; // ゲームオーバーじゃない
+
+	var birthday; // 敵生成の時刻
+
+	// 敵生成（ゲームスタート）
 	createEnemy();
+	// ゲームオーバーにならない限り常に監視しておく
+	createjs.Ticker.addEventListener('tick', judgeGame);
+
 	// スコア表示
-	countScore();
+	nowScore = String(score);
+	var scoreArea = new createjs.Text(nowScore, '24px sans-serif', '#ddd');
+	scoreArea.x = w/2;
+	scoreArea.y = 30;
+	scoreArea.textAlign = 'center';
+	container.addChild(scoreArea);
 
 	// 定期的に敵を生成する
 	function createEnemy () {
-		if (gameover) { return; } // ゲーム終了してたら弾く
-		console.log('-----------------');
+		if (enemylife) { // 前回生成した敵の命がまだあったらgameover.
+			gameover = true;
+			return; // これ以降createEnemyしない
+		}
+
 		enemy = new createjs.Bitmap(loader.getResult('enemy'));
 		enemy.x = Math.random() * ww - 50;
 		enemy.y = Math.random() * wh - 50;
 		container.addChild(enemy);
-		// その都度、敵にクリックイベントを追加する
-		enemy.addEventListener('click', removeEnemy);
+		enemylife = true; // 敵に命あり
 		birthday = new Date(); // 余命を設定する（誕生した時刻）
-		gameover = true; // いったんゲームオーバー扱いにする
+
+		enemy.addEventListener('click', removeEnemy);
 		setTimeout(createEnemy, interval);
 	}
 
 	// 敵をタップで削除する
 	function removeEnemy () {
-		console.info('Click!');
 		container.removeChild(enemy);
-		score++; // スコアを加算
-		gameover = false; // ゲームオーバーを阻止・解除
-		countScore();
-	}
-
-	// スコアをカウントする
-	function countScore () {
-		scoreArea = new createjs.Text('', 'bold 42px Arial', '#ddd');
-		scoreArea.x = w / 2;
-		scoreArea.y = 10;
-		scoreArea.textAlign = 'center';
-		scoreArea.text = score;
-		container.addChild(scoreArea); // スコアを描画
-	}
-
-	// 敵の余命を返す
-	function remainingTime () {
-		var nowDate = new Date(); // 現時刻
-		var lefttime = nowDate - birthday;
-		return lefttime; // 余命
+		enemylife = false; // 敵に命なし
+		score++;
+		scoreArea.text = String(score);
 	}
 
 	// ゲームオーバー判定
-	function judgeGameover (event) {
-		var timer = interval - remainingTime();
-		console.log(timer);
-		if (timer <= 0) {
-			// gameover = true;
-			endGame(score);
+ 	function judgeGame (event) {
+		if (gameover) {
+			// ゲーム終了処理
+			createjs.Ticker.removeEventListener('tick', judgeGame);
 			stage.removeChild(container);
-			// ゲームオーバー判定のtickリスナーを削除
-			createjs.Ticker.removeEventListener('tick', judgeGameover);
+			endGame(score);
+		} else {
+			console.log('now Playing.');
 		}
 	}
-	// ゲームオーバーにならない限り常に監視しておく
-	createjs.Ticker.addEventListener('tick', judgeGameover);
 }
 
 function endGame (score) {
