@@ -12,7 +12,6 @@ var w, h; // canvasの幅と高
 
 /* initialize
 ------------------------------ */
-init();
 function init () {
 	stage = new createjs.Stage('stage');
 	w = stage.canvas.width;
@@ -23,8 +22,8 @@ function init () {
 	loader = new createjs.LoadQueue(false);
 	loader.addEventListener('complete', handleComplete);
 	loader.loadManifest(manifest, true, '../assets/');
-	createjs.Ticker.setFPS(30);
 }
+init();
 
 function handleComplete () {
 	startGame();
@@ -32,8 +31,8 @@ function handleComplete () {
 
 /* tickの処理（ステージを常に更新する）
 ------------------------------ */
-createjs.Ticker.addEventListener('tick', stage);
-function stage (event) {
+createjs.Ticker.addEventListener('tick', tick);
+function tick (event) {
 	stage.update();
 }
 
@@ -49,15 +48,13 @@ function playGame () {
 	var score = 0;
 	var interval = 1500;
 	var enemy;
-	var baseDate;
+	var birthday;
 	var gameover = false;
 
 	// 敵生成
 	createEnemy();
 	// スコア表示
 	countScore();
-
-
 
 	// 定期的に敵を生成する
 	function createEnemy () {
@@ -69,12 +66,9 @@ function playGame () {
 		container.addChild(enemy);
 		// その都度、敵にクリックイベントを追加する
 		enemy.addEventListener('click', removeEnemy);
-		if (!gameover) {
-			baseDate = new Date(); // 余命を設定する（誕生した時刻）
-			gameover = true; // ゲームオーバーにする
-		}
-
-		setTimeout(createEnemy, interval); // 等間隔で繰り返し
+		birthday = new Date(); // 余命を設定する（誕生した時刻）
+		gameover = true; // いったんゲームオーバー扱いにする
+		setTimeout(createEnemy, interval);
 	}
 
 	// 敵をタップで削除する
@@ -82,7 +76,7 @@ function playGame () {
 		console.info('Click!');
 		container.removeChild(enemy);
 		score++; // スコアを加算
-		gameover = false;
+		gameover = false; // ゲームオーバーを阻止・解除
 		countScore();
 	}
 
@@ -96,18 +90,19 @@ function playGame () {
 		container.addChild(scoreArea); // スコアを描画
 	}
 
-	// 余命を返す
+	// 敵の余命を返す
 	function remainingTime () {
-		var nowDate = new Date();
-		var lefttime = nowDate - baseDate;
-		return lefttime;
+		var nowDate = new Date(); // 現時刻
+		var lefttime = nowDate - birthday;
+		return lefttime; // 余命
 	}
 
 	// ゲームオーバー判定
 	function judgeGameover (event) {
-		console.log(interval-remainingTime());
-		if (interval - remainingTime() <= 0) {
-			gameover = true;
+		var timer = interval - remainingTime();
+		console.log(timer);
+		if (timer <= 0) {
+			// gameover = true;
 			endGame(score);
 			stage.removeChild(container);
 			// ゲームオーバー判定のtickリスナーを削除
