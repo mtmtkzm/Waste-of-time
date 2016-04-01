@@ -111,23 +111,31 @@ function playGame() {
 }
 
 function endGame(score) {
-	var name = 'rider';
-	ds.push({ name: name, score: score }, function () {
-		// データを送信・保存のコールバック
-		var all = [];
-		ds.stream().next(function(err, rank) {
-			for (var i=0; i<rank.length; i++) {
-				all.push(rank[i].value.score);
-			}
-			sortDesc(all);
-			console.log(all.slice(0,5));
-		});
+	var registerButton = document.getElementById('registerButton');
+	var name = '';
+
+	registerButton.addEventListener('click', function () {
+		name = document.forms.registerRank.name.value;
+		register(name, score);
 	});
-	endScore = new createjs.Text('Your Score\n' + score, 'bold 42px Arial', '#ddd');
-	endScore.x = w / 2;
-	endScore.y = h / 2;
-	endScore.textAlign = 'center';
-	stage.addChild(endScore); // スコアを描画
+
+	function register () {
+		var ranking = [];
+		ds.push({name: name, score: score}, function () {
+			// データを送信・保存のコールバック
+			var all = [];
+			ds.stream().next(function(err, rank) {
+				for (var i=0; i<rank.length; i++) {
+					all.push(rank[i].value.score); // 全データを格納
+				}
+				sortDesc(all); // 降順に並び替え
+				ranking = all.slice(0,5); // TOP5をranking[]へ
+			});
+		});
+	}
+
+	// スコアを表示
+	console.log(score); 
 
 	// 引数で渡した配列を降順で並び変える
 	function sortDesc (array) {
@@ -135,4 +143,10 @@ function endGame(score) {
 			return (parseInt(a) < parseInt(b)) ? 1 : -1;
 		});
 	}
+}
+
+function showRanking () {
+	alert('show ranking!');
+	var container = new createjs.Container();
+	stage.addChild(container);
 }

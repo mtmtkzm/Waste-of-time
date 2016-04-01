@@ -6,10 +6,29 @@
 
 body {
 	background-color: #000;
+	overflow: hidden;
 }
 
 canvas#stage {
 	display: block;
 	margin: 0 auto;
 	background-color: #000;
+}
+
+.ranking-name {
+	position: absolute;
+	bottom: 30px;
+}
+
+.ranking-name-form {
+	background-color: transparent;
+	border: 1px solid #ddd;
+	color: #ddd;
+	height: 30px;
+}
+
+.ranking-name-register {
+	display: inline-block;
+	background-color: #ddd;
+	height: 30px;
 }
