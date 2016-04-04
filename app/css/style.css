@@ -16,6 +16,7 @@ canvas#stage {
 }
 
 .ranking-name {
+	/*display: none;*/
 	position: absolute;
 	bottom: 30px;
 }

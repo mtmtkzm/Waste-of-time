@@ -51,22 +51,21 @@ function startGame() {
 }
 
 function playGame() {
+	var interval = 1500;
+	var score = 0;
+	var enemy;
+	var enemylife = false;
+	var gameover = false;
+
 	var container = new createjs.Container();
 	stage.addChild(container);
-
-	// 変数を宣言
-	var interval = 1500; // 敵生成の間隔
-	var score = 0; // スコア
-	var enemy;
-	var enemylife = false; // 敵の命有無
-	var gameover = false; // ゲームオーバーじゃない
 
 	// 敵生成（ゲームスタート）
 	createEnemy();
 	// ゲームオーバーにならない限り常に監視しておく
 	createjs.Ticker.addEventListener('tick', judgeGame);
 
-	// スコア表示
+	// 上部に現在のスコア表示
 	nowScore = String(score);
 	var scoreArea = new createjs.Text(nowScore, '24px sans-serif', '#ddd');
 	scoreArea.x = w / 2;
@@ -78,13 +77,13 @@ function playGame() {
 	function createEnemy() {
 		if (enemylife) { // 前回生成した敵の命がまだあったらgameover.
 			gameover = true;
-			return; // これ以降createEnemyしない
+			return;
 		}
 		enemy = new createjs.Bitmap(loader.getResult('enemy'));
 		enemy.x = Math.random() * ww - 50;
 		enemy.y = Math.random() * wh - 50;
 		container.addChild(enemy);
-		enemylife = true; // 敵に命あり
+		enemylife = true;
 		birthday = new Date(); // 余命を設定する（誕生した時刻）
 		enemy.addEventListener('click', removeEnemy);
 		setTimeout(createEnemy, interval);
@@ -93,7 +92,7 @@ function playGame() {
 	// 敵をタップで削除する
 	function removeEnemy() {
 		container.removeChild(enemy);
-		enemylife = false; // 敵に命なし
+		enemylife = false;
 		score++;
 		scoreArea.text = String(score);
 	}
@@ -103,7 +102,6 @@ function playGame() {
 		if (!gameover) {
 			return;
 		}
-		// ゲーム終了処理
 		createjs.Ticker.removeEventListener('tick', judgeGame);
 		stage.removeChild(container);
 		endGame(score);
@@ -111,31 +109,57 @@ function playGame() {
 }
 
 function endGame(score) {
-	var registerButton = document.getElementById('registerButton');
-	var name = '';
+	var container = new createjs.Container();
+	stage.addChild(container);
+	var name;
 
+	var registerButton = document.getElementById('registerButton');
 	registerButton.addEventListener('click', function () {
-		name = document.forms.registerRank.name.value;
-		register(name, score);
+		// フォームバリューをリアルタイムに表示させるのを停止する
+		createjs.Ticker.removeEventListener('tick', changeForm);
+
+		// 名前を決定（空欄の場合はNo Name表示に）
+		if (name == '') {
+			name = 'No Name';
+		} else {
+			name = document.forms.registerRank.name.value;
+		}
+		register();
 	});
 
-	function register () {
-		var ranking = [];
-		ds.push({name: name, score: score}, function () {
-			// データを送信・保存のコールバック
-			var all = [];
-			ds.stream().next(function(err, rank) {
-				for (var i=0; i<rank.length; i++) {
-					all.push(rank[i].value.score); // 全データを格納
-				}
-				sortDesc(all); // 降順に並び替え
-				ranking = all.slice(0,5); // TOP5をranking[]へ
-			});
-		});
+	createjs.Ticker.addEventListener('tick', changeForm);
+
+	// DOMのフォームからCanvas内の仮想フォームに入力させる
+	function changeForm () {
+		var tempName = document.forms.registerRank.name.value;
+		var tempNameArea = new createjs.Text(tempName, '24px sans-serif', '#ddd');
+		tempNameArea.x = w / 2;
+		tempNameArea.y = 30;
+		tempNameArea.textAlign = 'center';
+		container.removeChild(tempNameArea);
+		container.addChild(tempNameArea);
 	}
 
-	// スコアを表示
-	console.log(score); 
+	// Milkcocoaに送信
+	function register () {
+		ds.push({name: name, score: score}, showRanking);
+	}
+}
+
+function showRanking () {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	// データを送信・保存のコールバック
+	var all = [];
+	var ranking = [];
+	ds.stream().next(function(err, rank) {
+		for (var i=0; i<rank.length; i++) {
+			all.push(rank[i].value.score); // 全データを格納
+		}
+		sortDesc(all); // 降順に並び替え
+		ranking = all.slice(0,5); // TOP5をranking[]へ
+	});
 
 	// 引数で渡した配列を降順で並び変える
 	function sortDesc (array) {
@@ -143,10 +167,4 @@ function endGame(score) {
 			return (parseInt(a) < parseInt(b)) ? 1 : -1;
 		});
 	}
-}
-
-function showRanking () {
-	alert('show ranking!');
-	var container = new createjs.Container();
-	stage.addChild(container);
 }
