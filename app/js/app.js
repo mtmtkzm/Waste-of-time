@@ -163,24 +163,21 @@ function endGame(userscore) {
 }
 
 function showRanking () {
-	var container = new createjs.Container();
-	stage.addChild(container);
-
-	// データを送信・保存のコールバック
-	var all = [];
-	var ranking = [];
-	ds.stream().next(function(err, rank) {
-		for (var i=0; i<rank.length; i++) {
-			all.push(rank[i].value.score); // 全データを格納
+	// データを取得してきて、sortRankingにぶっ込み、並び替え。
+	ds.stream().next(function(err, all) {
+		var ranking = sortRanking(all);
+		ranking.length = 5;
+		for (var i=0; i<5; i++) {
+			console.log(ranking[i].value.name+': '+ranking[i].value.score);
 		}
-		sortDesc(all); // 降順に並び替え
-		ranking = all.slice(0,5); // TOP5をranking[]へ
 	});
 
-	// 引数で渡した配列を降順で並び変える
-	function sortDesc (array) {
-		array.sort(function(a, b) {
-			return (parseInt(a) < parseInt(b)) ? 1 : -1;
+	function sortRanking (array) {
+		array.sort(function(a,b){
+			if(a.value.score < b.value.score) { return 1; }
+			if(a.value.score > b.value.score) { return -1; }
+			return 0;
 		});
+		return array;
 	}
 }
