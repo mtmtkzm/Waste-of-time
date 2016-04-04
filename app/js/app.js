@@ -113,12 +113,26 @@ function endGame(userscore) {
 	stage.addChild(container);
 	var username;
 
-	var registerButton = document.getElementById('registerButton');
-	registerButton.addEventListener('click', function () {
-		// フォームバリューをリアルタイムに表示させるのを停止する
-		createjs.Ticker.removeEventListener('tick', changeForm);
+	// 仮想の名前入力フォーム
+	var nameArea = new createjs.Shape();
+	nameArea.graphics.beginFill('#999');
+	nameArea.graphics.drawRect(0, 0, 120, 50);
+	nameArea.y = h/2;
+	// 仮想フォームクリックで、DOMのformにフォーカスする
+	nameArea.addEventListener('click', function () {
+		document.getElementById('name').focus();
+	});
+	container.addChild(nameArea);
 
-		// 名前を決定（空欄の場合はNo Name表示に）
+	// 登録ボタン
+	var registerButton = new createjs.Shape();
+	registerButton.graphics.beginFill('#333');
+	registerButton.graphics.drawRect(0, 0, 120, 50);
+	registerButton.x = 150;
+	registerButton.y = h/2;
+	// 登録クリックイベントで名前を決定（空欄の場合はNo Name表示に）
+	registerButton.addEventListener('click', function () {
+		createjs.Ticker.removeEventListener('tick', changeForm);
 		if (username == '') {
 			username = 'No Name';
 		} else {
@@ -126,15 +140,15 @@ function endGame(userscore) {
 		}
 		register();
 	});
+	container.addChild(registerButton);
 
-	createjs.Ticker.addEventListener('tick', changeForm);
-
-	// 仮想フォームエリアを描画する
+	// リアルタイム名前描画する場所
 	var tempNameArea = new createjs.Text('', '24px sans-serif', '#ddd');
-	tempNameArea.x = w / 2;
-	tempNameArea.y = 30;
-	tempNameArea.textAlign = 'center';
+	tempNameArea.y = h/2;
 	container.addChild(tempNameArea);
+
+	// changeFormをtickでまわす
+	createjs.Ticker.addEventListener('tick', changeForm);
 
 	// DOMのフォームからCanvas内の仮想フォームに入力させる（tickで監視）
 	function changeForm () {

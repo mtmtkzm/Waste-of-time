@@ -16,20 +16,7 @@ canvas#stage {
 }
 
 .ranking-name {
-	/*display: none;*/
-	position: absolute;
-	bottom: 30px;
-}
-
-.ranking-name-form {
-	background-color: transparent;
-	border: 1px solid #ddd;
-	color: #ddd;
-	height: 30px;
-}
-
-.ranking-name-register {
-	display: inline-block;
-	background-color: #ddd;
-	height: 30px;
+	opacity: 0;
+	position: fixed;
+	z-index: -100;
 }
