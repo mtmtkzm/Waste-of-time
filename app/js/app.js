@@ -108,10 +108,10 @@ function playGame() {
 	}
 }
 
-function endGame(score) {
+function endGame(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
-	var name;
+	var username;
 
 	var registerButton = document.getElementById('registerButton');
 	registerButton.addEventListener('click', function () {
@@ -119,30 +119,32 @@ function endGame(score) {
 		createjs.Ticker.removeEventListener('tick', changeForm);
 
 		// 名前を決定（空欄の場合はNo Name表示に）
-		if (name == '') {
-			name = 'No Name';
+		if (username == '') {
+			username = 'No Name';
 		} else {
-			name = document.forms.registerRank.name.value;
+			username = document.forms.registerRank.name.value;
 		}
 		register();
 	});
 
 	createjs.Ticker.addEventListener('tick', changeForm);
 
-	// DOMのフォームからCanvas内の仮想フォームに入力させる
+	// 仮想フォームエリアを描画する
+	var tempNameArea = new createjs.Text('', '24px sans-serif', '#ddd');
+	tempNameArea.x = w / 2;
+	tempNameArea.y = 30;
+	tempNameArea.textAlign = 'center';
+	container.addChild(tempNameArea);
+
+	// DOMのフォームからCanvas内の仮想フォームに入力させる（tickで監視）
 	function changeForm () {
 		var tempName = document.forms.registerRank.name.value;
-		var tempNameArea = new createjs.Text(tempName, '24px sans-serif', '#ddd');
-		tempNameArea.x = w / 2;
-		tempNameArea.y = 30;
-		tempNameArea.textAlign = 'center';
-		container.removeChild(tempNameArea);
-		container.addChild(tempNameArea);
+		tempNameArea.text = String(tempName);
 	}
 
 	// Milkcocoaに送信
 	function register () {
-		ds.push({name: name, score: score}, showRanking);
+		ds.push({name: username, score: userscore}, showRanking);
 	}
 }
 
