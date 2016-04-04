@@ -125,13 +125,13 @@ function endGame(userscore) {
 	container.addChild(nameArea);
 
 	// 登録ボタン
-	var registerButton = new createjs.Shape();
-	registerButton.graphics.beginFill('#333');
-	registerButton.graphics.drawRect(0, 0, 120, 50);
-	registerButton.x = 150;
-	registerButton.y = h/2;
+	var registerBtn = new createjs.Shape();
+	registerBtn.graphics.beginFill('#333');
+	registerBtn.graphics.drawRect(0, 0, 120, 50);
+	registerBtn.x = 150;
+	registerBtn.y = h/2;
 	// 登録クリックイベントで名前を決定（空欄の場合はNo Name表示に）
-	registerButton.addEventListener('click', function () {
+	registerBtn.addEventListener('click', function () {
 		createjs.Ticker.removeEventListener('tick', changeForm);
 		if (username == '') {
 			username = 'No Name';
@@ -140,7 +140,7 @@ function endGame(userscore) {
 		}
 		register();
 	});
-	container.addChild(registerButton);
+	container.addChild(registerBtn);
 
 	// リアルタイム名前描画する場所
 	var tempNameArea = new createjs.Text('', '24px sans-serif', '#ddd');
@@ -158,26 +158,43 @@ function endGame(userscore) {
 
 	// Milkcocoaに送信
 	function register () {
-		ds.push({name: username, score: userscore}, showRanking);
+		ds.push({name: username, score: userscore}, showRanking(userscore));
 	}
 }
 
-function showRanking () {
-	// データを取得してきて、sortRankingにぶっ込み、並び替え。
+function showRanking (userscore) {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	var ranking = [];
 	ds.stream().next(function(err, all) {
-		var ranking = sortRanking(all);
-		ranking.length = 5;
-		for (var i=0; i<5; i++) {
-			console.log(ranking[i].value.name+': '+ranking[i].value.score);
-		}
+		// ランキングを取得する
+		getRanking(all);
+	}).next(function(){
+		// ランキング取得後表示
+		judgeRankIn();
 	});
 
-	function sortRanking (array) {
-		array.sort(function(a,b){
+	// データを取得してきて、並び替え。上位5件だけを表示。
+	function getRanking (all) {
+		all.sort(function(a,b) {
 			if(a.value.score < b.value.score) { return 1; }
 			if(a.value.score > b.value.score) { return -1; }
 			return 0;
 		});
-		return array;
+		all.length = 5;
+		ranking = all;
+	}
+
+	// ランクインしているか判定・ランキング表示
+	function judgeRankIn () {
+		for (var i=0; i<5; i++) {
+			console.log(ranking[i].value.name + '：' + ranking[i].value.score);
+		}
+		if (ranking[4].value.score < userscore) {
+			console.info(userscore+'P: you WIN!');
+		} else {
+			console.info(userscore+'P: you LOSE..');
+		}
 	}
 }
