@@ -15,11 +15,15 @@ $('#stage').get(0).height = wh;
 ------------------------------ */
 var stage; // canvas
 var w, h; // canvasの幅と高
+// 色定義
+var black = '#555';
+var white = '#eee';
+var shadow = '#444';
+var accent = '#EF6B09';
 
 /* initialize
 ------------------------------ */
 initialize();
-
 function initialize() {
 	stage = new createjs.Stage('stage');
 	w = stage.canvas.width;
@@ -27,16 +31,9 @@ function initialize() {
 	manifest = [
 		{ src: 'enemy/enemy.png', id: 'enemy' }
 	];
-
-
-
 	loader = new createjs.LoadQueue(false);
-	loader.addEventListener('complete', handleComplete);
+	loader.addEventListener('complete', startGameView);
 	loader.loadManifest(manifest, true, '../assets/');
-}
-
-function handleComplete() {
-	startGame();
 }
 
 /* tickの処理（ステージを常に更新する）
@@ -47,32 +44,109 @@ function tick(event) {
 	stage.update();
 }
 
-/* ゲーム画面
------------------------------- */
-function startGame() {
-	playGame();
+// ボタンモジュール
+function createBtn (text) {
+	// ボタンになるコンテナ
+	var btn = new createjs.Container();
+	btn.x = (w-300)/2; // 中央配置
+	btn.y = h - 80;
+	// ボタン本体
+	var btnBase = new createjs.Shape();
+	btnBase.graphics.beginFill(black);
+	btnBase.graphics.drawRoundRect(0, 0, 300, 48, 5);
+	btnBase.shadow = new createjs.Shadow(shadow, 0, 6, 0);
+	// ボタンテキスト
+	var btnText = new createjs.Text(text, '32px VT323', white);
+	btnText.x = btnBase.x + 150;
+	btnText.y = btnBase.y + 6;
+	btnText.lineHeight = 18;
+	btnText.textAlign = 'center';
+	btn.addChild(btnBase, btnText);
+	return btn;
 }
 
-function playGame() {
+function createTtl (text) {
+	// タイトルになるコンテナ
+	var ttl = new createjs.Container();
+	ttl.x = w/2;
+	ttl.y = 40;
+	// タイトルラベルを生成
+	var ttlLabel = new createjs.Text(text, "48px 'VT323'", black);	
+	ttlLabel.textAlign = 'center';
+	ttl.addChild(ttlLabel);
+	return ttl;
+}
+
+/* ゲーム画面
+------------------------------ */
+function startGameView() {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	// タイトルラベル
+	var ttlLabel = createTtl('Goofing Around');
+	container.addChild(ttlLabel);
+	// 説明のラベル
+	var descriptionLabel = new createjs.Text('', "12px 'VT323'", black);
+	descriptionLabel.text = '等間隔で無数に出現する敵を\nタップするだけの単純なゲーム。\n\nランダムな場所に現れるオブジェクトを、\n次のオブジェクトが出現するまでにタップしよう。';
+	descriptionLabel.x = w/2;
+	descriptionLabel.y = 160;
+	descriptionLabel.lineHeight = 18;
+	descriptionLabel.textAlign = 'center';
+	container.addChild(descriptionLabel);
+	// プレイスタートボタン
+	var playBtn = createBtn('Play');
+	playBtn.addEventListener('click', function () {
+		createjs.Tween.get(container).to({ alpha:0 }, 250).wait(100).call(function () {
+			stage.removeChild(container);
+			// countDownView();
+			playGameView();
+		});
+	});
+	container.addChild(playBtn);
+}
+
+function countDownView () {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	var count = 3;
+	var countArea = new createjs.Text(count, "100px 'VT323'", black);
+	countArea.x = w/2;
+	countArea.y = h/2 - 50;
+	countArea.textAlign = 'center';
+	container.addChild(countArea);
+	function countDown () {
+		count--;
+		countArea.text = String(count);
+		if (count == 0) {
+			stage.removeChild(container);
+			playGameView();
+			return;
+		}
+	}
+	setInterval(countDown, 1000);
+}
+
+function playGameView() {
 	var interval = 1500;
 	var score = 0;
-	var enemy;
 	var enemylife = false;
 	var gameover = false;
+	var enemy;
 
 	var container = new createjs.Container();
 	stage.addChild(container);
 
 	// 敵生成（ゲームスタート）
 	createEnemy();
-	// ゲームオーバーにならない限り常に監視しておく
 	createjs.Ticker.addEventListener('tick', judgeGame);
 
 	// 上部に現在のスコア表示
 	nowScore = String(score);
-	var scoreArea = new createjs.Text(nowScore, "24px 'Press Start 2P'", '#ddd');
+	var scoreArea = new createjs.Text(nowScore, "48px 'VT323'", black);
 	scoreArea.x = w / 2;
-	scoreArea.y = 30;
+	scoreArea.y = 40;
 	scoreArea.textAlign = 'center';
 	container.addChild(scoreArea);
 
@@ -82,10 +156,14 @@ function playGame() {
 			gameover = true;
 			return;
 		}
-		enemy = new createjs.Bitmap(loader.getResult('enemy'));
-		enemy.x = Math.random() * ww - 50;
-		enemy.y = Math.random() * wh - 50;
+		var rx = Math.random() * ww - 50;
+		var ry = Math.random() * wh - 50;
+
+		enemy = new createjs.Shape();
+		enemy.graphics.beginFill(black);
+		enemy.graphics.drawPolyStar(rx, ry, 40, 7, 0, -90);
 		container.addChild(enemy);
+
 		enemylife = true;
 		enemy.addEventListener('click', removeEnemy);
 		setTimeout(createEnemy, interval);
@@ -106,32 +184,49 @@ function playGame() {
 		}
 		createjs.Ticker.removeEventListener('tick', judgeGame);
 		stage.removeChild(container);
-		endGame(score);
+		endGameView(score);
 	}
 }
 
-function endGame(userscore) {
+function endGameView(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
-	var username;
+	// 最終スコア
+	var username = userscore;
 
-	// 仮想の名前入力フォーム
+	// スコアラベル
+	var scoreAreaLabel = createTtl('Your Score:');
+	container.addChild(scoreAreaLabel);
+	// スコア表示
+	var scoreArea = new createjs.Text(userscore, "100px 'VT323'", black);
+	scoreArea.y = scoreAreaLabel.y + 50;
+	scoreArea.x = w/2;
+	scoreArea.textAlign = 'center';
+	container.addChild(scoreArea);
+
+	// 名前ラベル
+	var nameAreaLabel = createTtl('Your Name ?');
+	nameAreaLabel.y = h - 250;
+	container.addChild(nameAreaLabel);
+
+	// 仮想入力フォーム
 	var nameArea = new createjs.Shape();
-	nameArea.graphics.beginFill('#999');
-	nameArea.graphics.drawRect(0, 0, 120, 50);
-	nameArea.y = h/2;
+	nameArea.graphics.beginFill(white);
+	nameArea.graphics.beginStroke(black);
+	nameArea.graphics.setStrokeStyle(2);
+	nameArea.graphics.drawRoundRect(0, 0, 300, 48, 5);
+	nameArea.x = (w-300)/2;
+	nameArea.y = h - 150;
+
 	// 仮想フォームクリックで、DOMのformにフォーカスする
 	nameArea.addEventListener('click', function () {
+		nameArea.graphics.beginStroke(accent);
 		document.getElementById('name').focus();
 	});
 	container.addChild(nameArea);
 
 	// 登録ボタン
-	var registerBtn = new createjs.Shape();
-	registerBtn.graphics.beginFill('#333');
-	registerBtn.graphics.drawRect(0, 0, 120, 50);
-	registerBtn.x = 150;
-	registerBtn.y = h/2;
+	var registerBtn = createBtn('Send');
 	// 登録クリックイベントで名前を決定（空欄の場合はNo Name表示に）
 	registerBtn.addEventListener('click', function () {
 		createjs.Ticker.removeEventListener('tick', changeForm);
@@ -145,7 +240,7 @@ function endGame(userscore) {
 	container.addChild(registerBtn);
 
 	// リアルタイム名前描画する場所
-	var tempNameArea = new createjs.Text('', '24px sans-serif', '#ddd');
+	var tempNameArea = new createjs.Text('', '24px sans-serif', black);
 	tempNameArea.y = h/2;
 	container.addChild(tempNameArea);
 
@@ -160,11 +255,11 @@ function endGame(userscore) {
 
 	// Milkcocoaに送信
 	function register () {
-		ds.push({name: username, score: userscore}, showRanking(userscore));
+		ds.push({name: username, score: userscore}, rankingView(userscore));
 	}
 }
 
-function showRanking (userscore) {
+function rankingView (userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
 

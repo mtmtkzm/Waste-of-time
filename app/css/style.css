@@ -5,14 +5,14 @@
 }
 
 body {
-	background-color: #000;
+	background-color: #eee;
 	overflow: hidden;
 }
 
 canvas#stage {
 	display: block;
 	margin: 0 auto;
-	background-color: #000;
+	background-color: #eee;
 }
 
 .ranking-name {
