@@ -1,6 +1,6 @@
-## Goofing Around
+# Goofing Around
 根気よくタップするだけのゲーム。  
-Goof Aroundは、時間を無駄にするという意味をもつスラング。
+Goofing Aroundは、時間を無駄にするという意味をもつスラング。
 
 ## デザインルールみたいなもの
 ### Color
