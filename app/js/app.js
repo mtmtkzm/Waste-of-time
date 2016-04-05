@@ -27,6 +27,9 @@ function initialize() {
 	manifest = [
 		{ src: 'enemy/enemy.png', id: 'enemy' }
 	];
+
+
+
 	loader = new createjs.LoadQueue(false);
 	loader.addEventListener('complete', handleComplete);
 	loader.loadManifest(manifest, true, '../assets/');
@@ -67,7 +70,7 @@ function playGame() {
 
 	// 上部に現在のスコア表示
 	nowScore = String(score);
-	var scoreArea = new createjs.Text(nowScore, '24px sans-serif', '#ddd');
+	var scoreArea = new createjs.Text(nowScore, "24px 'Press Start 2P'", '#ddd');
 	scoreArea.x = w / 2;
 	scoreArea.y = 30;
 	scoreArea.textAlign = 'center';
@@ -84,7 +87,6 @@ function playGame() {
 		enemy.y = Math.random() * wh - 50;
 		container.addChild(enemy);
 		enemylife = true;
-		birthday = new Date(); // 余命を設定する（誕生した時刻）
 		enemy.addEventListener('click', removeEnemy);
 		setTimeout(createEnemy, interval);
 	}
