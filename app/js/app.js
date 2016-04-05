@@ -189,12 +189,12 @@ function showRanking (userscore) {
 	// ランクインしているか判定・ランキング表示
 	function judgeRankIn () {
 		for (var i=0; i<5; i++) {
-			console.log(ranking[i].value.name + '：' + ranking[i].value.score);
+			console.log(i+1 + '位：' + ranking[i].value.name + '　' + ranking[i].value.score);
 		}
 		if (ranking[4].value.score < userscore) {
-			console.info(userscore+'P: you WIN!');
+			alert(userscore+'Pです。You WIN!');
 		} else {
-			console.info(userscore+'P: you LOSE..');
+			alert(userscore+'Pです。You LOSE..');
 		}
 	}
 }
