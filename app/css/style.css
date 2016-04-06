@@ -6,7 +6,7 @@
 
 body {
 	background-color: #eee;
-	overflow: hidden;
+	/*overflow: hidden;*/
 }
 
 canvas#stage {
