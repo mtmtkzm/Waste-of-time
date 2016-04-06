@@ -17,8 +17,8 @@ $('#stage').get(0).height = wh;
 var stage; // canvas
 var w, h; // canvasの幅と高
 // 色定義
-var black = '#555';
 var white = '#eee';
+var black = '#555';
 var shadow = '#444';
 var accent = '#EF6B09';
 
@@ -179,7 +179,7 @@ function playGameView() {
 		container.removeChild(enemy);
 		enemylife = false;
 		score++;
-		scoreArea.text = String(score)+'p';
+		scoreArea.text = String(score);
 	}
 
 	// ゲームオーバー判定
@@ -197,11 +197,9 @@ function scoreView(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
 
-	// 名前
-	var username;
-
 	// スコアラベル
 	var scoreAreaLabel = createTtl('Your Score:');
+	scoreAreaLabel.y = h/2 - 70;
 	container.addChild(scoreAreaLabel);
 	// スコア表示
 	var scoreArea = new createjs.Text(userscore, "100px 'VT323'", black);
@@ -209,24 +207,38 @@ function scoreView(userscore) {
 	scoreArea.x = w/2;
 	scoreArea.textAlign = 'center';
 	container.addChild(scoreArea);
+	// 3秒後ランキング表示
+	setTimeout(function() {
+		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+			stage.removeChild(container);
+			resultView(userscore);
+		});
+	}, 100);
+}
+
+function resultView(userscore) {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	// 名前
+	var username;
 
 	// 名前ラベル
 	var nameAreaLabel = createTtl('Your Name ?');
-	nameAreaLabel.y = h/2 + 20;
 	container.addChild(nameAreaLabel);
 
-	// 仮想入力フォーム
+	// 仮想フォーム
 	var nameArea = new createjs.Shape();
 	nameArea.graphics.beginFill(white);
 	nameArea.graphics.beginStroke(black);
 	nameArea.graphics.setStrokeStyle(2);
 	nameArea.graphics.drawRoundRect(0, 0, 300, 48, 5);
 	nameArea.x = (w-300) / 2;
-	nameArea.y = h/2 + 100;
+	nameArea.y = h/2 - 90;
 
 	// 仮想フォームクリックで、DOMのformにフォーカスする
 	nameArea.addEventListener('click', function () {
-		nameArea.graphics.beginStroke(accent);
+		nameArea.graphics._stroke.style = accent; // 仮想フォームの枠をオレンジに
 		document.getElementById('name').focus();
 	});
 
@@ -238,9 +250,11 @@ function scoreView(userscore) {
 
 	// 登録ボタン
 	var registerBtn = createBtn('Send');
+	registerBtn.y = h/2 - 30;
 
 	// 登録クリックイベントで、名前を決定する
 	registerBtn.addEventListener('click', function () {
+		nameArea.graphics._stroke.style = black; // 仮想フォームの枠を黒に戻す
 		createjs.Ticker.removeEventListener('tick', changeForm);
 		username = document.forms.registerRank.name.value;
 		// 空欄の場合はNoNameに
