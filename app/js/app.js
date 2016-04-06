@@ -102,24 +102,10 @@ function startGameView() {
 	descriptionLabel.textAlign = 'center';
 	container.addChild(descriptionLabel);
 
-	// プレイスタートボタン
-	var playBtn = createBtn('Play');
-	playBtn.addEventListener('click', function () {
-		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
-			stage.removeChild(container);
-			// countDownView();
-			playGameView();
-		});
-	});
-	container.addChild(playBtn);
 
 	// サンプル動作するチュートリアル表示
 	// チュートリアルの表示領域を取得
-	tutorial();
 	function tutorial() {
-		var tutorialArea = new createjs.Container();
-		stage.addChild(tutorialArea);
-
 		var tutorialEnemy;
 		var hand = new createjs.Bitmap(loader.getResult('hand'));
 		hand.regX = 5;
@@ -139,19 +125,31 @@ function startGameView() {
 			tutorialEnemy.graphics.beginFill(black);
 			tutorialEnemy.graphics.drawPolyStar(rx, ry, 30 , 7, 0, -90);
 			// 手生成
-			tutorialArea.addChild(tutorialEnemy, hand);
+			container.addChild(tutorialEnemy, hand);
 			moveHand(rx, ry);
 		}
 
 		function moveHand (rx, ry) {
 			createjs.Tween.get(hand).wait(500).to({ x: rx, y: ry }, 200).call(function () {
 				createjs.Tween.get(tutorialEnemy).to({ alpha: 0 }, 200).wait(200).call(function () {
-					tutorialArea.removeChild(tutorialEnemy);
+					container.removeChild(tutorialEnemy);
 					setTimeout(createTutorialEnemy, 1000);
 				});
 			});
 		}
 	}
+	// プレイスタートボタン
+	var playBtn = createBtn('Play');
+	playBtn.addEventListener('click', function () {
+		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+			stage.removeChild(container);
+			// countDownView();
+			playGameView();
+		});
+	});
+	container.addChild(playBtn);
+
+	tutorial();
 }
 
 function countDownView () {
