@@ -135,7 +135,7 @@ function countDownView () {
 }
 
 function playGameView() {
-	var interval = 1500;
+	var interval = 1000;
 	var score = 0;
 	var enemylife = false;
 	var gameover = false;
@@ -162,12 +162,11 @@ function playGameView() {
 			gameover = true;
 			return;
 		}
-		var rx = Math.random() * ww - 50;
-		var ry = Math.random() * wh - 50;
-
+		var rx = Math.random() * (ww-100); // 0 ~ ww-100
+		var ry = Math.random() * (wh-200) + 100; // 100 ~ wh-100
 		enemy = new createjs.Shape();
 		enemy.graphics.beginFill(black);
-		enemy.graphics.drawPolyStar(rx, ry, 40, 7, 0, -90);
+		enemy.graphics.drawPolyStar(rx, ry, 70*Math.random() + 30 , 7, 0, -90);
 		container.addChild(enemy);
 		enemylife = true;
 		enemy.addEventListener('click', removeEnemy);
@@ -255,6 +254,7 @@ function resultView(userscore) {
 	// 登録クリックイベントで、名前を決定する
 	registerBtn.addEventListener('click', function () {
 		nameArea.graphics._stroke.style = black; // 仮想フォームの枠を黒に戻す
+		document.getElementById('name').blur(); // フォーカスをはずす
 		createjs.Ticker.removeEventListener('tick', changeForm);
 		username = document.forms.registerRank.name.value;
 		// 空欄の場合はNoNameに
@@ -343,9 +343,9 @@ function rankingView (userscore) {
 			rankScore.x = w/2 + 140;
 			rankScore.y = h/2 + 18 + (i-3)*50;
 			rankScore.textAlign = 'right';
-			// コンテナにアド
 			container.addChild(rankOrder, rankName, rankScore);
 		}
+
 		var retryBtn = createBtn('Retry');
 		retryBtn.addEventListener('click', function() {
 			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
