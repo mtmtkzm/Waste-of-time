@@ -30,7 +30,8 @@ function initialize() {
 	w = stage.canvas.width;
 	h = stage.canvas.height;
 	manifest = [
-		{ src: 'enemy/enemy.png', id: 'enemy' }
+		{ src: 'enemy/enemy.png', id: 'enemy' },
+		{ src: 'hand.png', id: 'hand' }
 	];
 	loader = new createjs.LoadQueue(false);
 	loader.addEventListener('complete', startGameView);
@@ -100,6 +101,7 @@ function startGameView() {
 	descriptionLabel.lineHeight = 18;
 	descriptionLabel.textAlign = 'center';
 	container.addChild(descriptionLabel);
+
 	// プレイスタートボタン
 	var playBtn = createBtn('Play');
 	playBtn.addEventListener('click', function () {
@@ -110,6 +112,46 @@ function startGameView() {
 		});
 	});
 	container.addChild(playBtn);
+
+	// サンプル動作するチュートリアル表示
+	// チュートリアルの表示領域を取得
+	tutorial();
+	function tutorial() {
+		var tutorialArea = new createjs.Container();
+		stage.addChild(tutorialArea);
+
+		var tutorialEnemy;
+		var hand = new createjs.Bitmap(loader.getResult('hand'));
+		hand.regX = 5;
+		hand.regY = -5;
+		hand.x = w + hand.regX;
+		hand.y = h/2;
+
+		// チュートリアル開始
+		createTutorialEnemy();
+		function createTutorialEnemy () {
+			var topLimit = (descriptionLabel.y) - 10; // ラベル下
+			var bottomLimit = playBtn.y - 70; // ボタン上
+			var rx = Math.random() * (ww-100) + 10; // 0 から (ww-50) まで
+			var ry = Math.random() * (topLimit - bottomLimit) + bottomLimit; // 説明ラベル下+30 から ボタン上-30 まで
+			// enemy生成
+			tutorialEnemy = new createjs.Shape();
+			tutorialEnemy.graphics.beginFill(black);
+			tutorialEnemy.graphics.drawPolyStar(rx, ry, 30 , 7, 0, -90);
+			// 手生成
+			tutorialArea.addChild(tutorialEnemy, hand);
+			moveHand(rx, ry);
+		}
+
+		function moveHand (rx, ry) {
+			createjs.Tween.get(hand).wait(500).to({ x: rx, y: ry }, 200).call(function () {
+				createjs.Tween.get(tutorialEnemy).to({ alpha: 0 }, 200).wait(200).call(function () {
+					tutorialArea.removeChild(tutorialEnemy);
+					setTimeout(createTutorialEnemy, 1000);
+				});
+			});
+		}
+	}
 }
 
 function countDownView () {
