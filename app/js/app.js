@@ -46,6 +46,8 @@ function tick(event) {
 	stage.update();
 }
 
+/* グローバル関数（？）
+------------------------------ */
 // ボタンモジュール
 function createBtn (text) {
 	// ボタンになるコンテナ
@@ -70,7 +72,7 @@ function createBtn (text) {
 	});
 	return btn;
 }
-
+// タイトルモジュール
 function createTtl (text) {
 	// タイトルになるコンテナ
 	var ttl = new createjs.Container();
@@ -83,7 +85,7 @@ function createTtl (text) {
 	return ttl;
 }
 
-/* ゲーム画面
+/* スタート画面
 ------------------------------ */
 function startGameView() {
 	var container = new createjs.Container();
@@ -152,6 +154,8 @@ function startGameView() {
 	tutorial();
 }
 
+/* スタートまでのカウントダウン画面
+------------------------------ */
 function countDownView () {
 	var container = new createjs.Container();
 	stage.addChild(container);
@@ -174,6 +178,8 @@ function countDownView () {
 	setInterval(countDown, 1000);
 }
 
+/* プレイ画面
+------------------------------ */
 function playGameView() {
 	var interval = 1000;
 	var score = 0;
@@ -232,6 +238,8 @@ function playGameView() {
 	}
 }
 
+/* スコア表示画面
+------------------------------ */
 function scoreView(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
@@ -246,15 +254,16 @@ function scoreView(userscore) {
 	scoreArea.x = w/2;
 	scoreArea.textAlign = 'center';
 	container.addChild(scoreArea);
-	// 3秒後ランキング表示
 	setTimeout(function() {
 		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 			stage.removeChild(container);
 			resultView(userscore);
 		});
-	}, 100);
+	}, 2000);
 }
 
+/* 名前入力画面
+------------------------------ */
 function resultView(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
@@ -327,18 +336,39 @@ function resultView(userscore) {
 	}
 }
 
+/* ランキング表示画面
+------------------------------ */
 function rankingView (userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
 
 	var ranking = [];
+	var winner;
+
 	ds.stream().next(function(err, all) {
 		// ランキングを取得する
 		getRanking(all);
+		// ランクインしたかを判定 winner:T/F
+		if (userscore > ranking[4].value.score || ranking[4].value.score == undefined) {
+			winner = true;
+		} else {
+			winner = false;
+		}
 	}).next(function(){
 		// ランキング取得後表示
 		showRanking();
+		// 勝利判定処理
+		showDecision();
 	});
+
+	// 勝敗を祝う
+	function showDecision() {
+		if (winner) { // ランクインのとき
+			console.log('Your Winner!');
+		} else { // ランク外のとき
+			console.log('Your Loser..');
+		}
+	}
 
 	// データを取得してきて、並び替え。上位5件だけを表示。
 	function getRanking (all) {
@@ -355,6 +385,8 @@ function rankingView (userscore) {
 	function showRanking () {
 		var ttlLabel = createTtl('Score Ranking:');
 		container.addChild(ttlLabel);
+
+		console.log(container);
 
 		// ランキングの区切り線を描画
 		for (var i=0; i<4; i++) {
