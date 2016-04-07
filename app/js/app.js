@@ -7,6 +7,17 @@ var ds = milkcocoa.dataStore('scores');
 var ww = $(window).width();
 var wh = $(window).height();
 
+
+/* エンターキーを無効に
+------------------------------ */
+$('input').keydown(function(e) {
+	if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {
+		return false;
+	} else {
+		return true;
+	}
+});
+
 /* canvasを全画面表示する
 ------------------------------ */
 $('#stage').get(0).width = ww;
@@ -119,7 +130,7 @@ function startGameView() {
 		createTutorialEnemy();
 		function createTutorialEnemy () {
 			var topLimit = (descriptionLabel.y) - 10; // ラベル下
-			var bottomLimit = playBtn.y - 70; // ボタン上
+			var bottomLimit = playBtn.y - 80; // ボタン上
 			var rx = Math.random() * (ww-100) + 10; // 0 から (ww-50) まで
 			var ry = Math.random() * (topLimit - bottomLimit) + bottomLimit; // 説明ラベル下+30 から ボタン上-30 まで
 			// enemy生成
@@ -149,7 +160,6 @@ function startGameView() {
 		});
 	});
 	container.addChild(playBtn);
-
 	tutorial();
 }
 
@@ -180,14 +190,14 @@ function countDownView () {
 /* プレイ画面
 ------------------------------ */
 function playGameView() {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
 	var interval = 1000;
 	var score = 0;
 	var enemylife = false;
 	var gameover = false;
 	var enemy;
-
-	var container = new createjs.Container();
-	stage.addChild(container);
 
 	// 敵生成（ゲームスタート）
 	createEnemy();
@@ -269,10 +279,8 @@ function scoreView(userscore) {
 function resultView(userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
-
 	// 名前
 	var username;
-
 	// 名前ラベル
 	var nameAreaLabel = createTtl('Your Name ?');
 	container.addChild(nameAreaLabel);
@@ -343,7 +351,6 @@ function resultView(userscore) {
 function rankingView (userscore) {
 	var container = new createjs.Container();
 	stage.addChild(container);
-
 	var ranking = [];
 	var winner;
 
@@ -402,14 +409,12 @@ function rankingView (userscore) {
 
 	// 勝敗を祝う
 	function showDecision() {
-		if (winner) { // ランクインのとき
+		if (winner) {
 			var petalNum = 0;
 			var petal = new Array();
-
-			createPetal();
 			function createPetal () {
 				petal[petalNum] = new createjs.Shape();
-				petal[petalNum].graphics.beginFill(accent).drawCircle(Math.random()*w, Math.random()*(h/3), Math.random()*7+5);
+				petal[petalNum].graphics.beginFill(accent).drawCircle(Math.random()*w, Math.random()*(h/2)-100, Math.random()*7+5);
 				petal[petalNum].alpha = 0;
 				container.addChild(petal[petalNum]);
 				createjs.Tween.get(petal[petalNum]).to({ alpha:Math.random()-0.2 }, 200);
@@ -419,8 +424,8 @@ function rankingView (userscore) {
 				petalNum++;
 				setTimeout(createPetal, 70);
 			}
-		} else { // ランク外のとき
-			// 文字を全部下に落とす
+			createPetal();
+		} else {
 			for (var i=0; i<container.children.length; i++) {
 				createjs.Tween.get(container.children[i]).wait(i*100+2000).to({ y:h }, 500, createjs.Ease.cubicIn);
 			}
@@ -434,12 +439,11 @@ function rankingView (userscore) {
 	}
 }
 
-/* リトライ？フィニッシュ？
+/* ゲーム続行かを選択する画面
 ------------------------------ */
 function comfirmRetryView() {
 	var container = new createjs.Container();
 	stage.addChild(container);
-
 	var retryTtl =  createTtl('Do you retry?\n\nor finish?');
 	var retryBtn = createBtn('Retry');
 	retryBtn.y = h/2-33;
