@@ -145,8 +145,7 @@ function startGameView() {
 	playBtn.addEventListener('click', function () {
 		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 			stage.removeChild(container);
-			// countDownView();
-			playGameView();
+			countDownView();
 		});
 	});
 	container.addChild(playBtn);
