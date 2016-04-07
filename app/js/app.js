@@ -413,38 +413,41 @@ function rankingView (userscore) {
 	// 勝敗を祝う
 	function showDecision() {
 		if (winner) { // ランクインのとき
-			setTimeout(comfirmRetry, 2000);
+			stage.removeChild(container);
+			comfirmRetryView();
 		} else { // ランク外のとき
 			// 文字を全部下に落とす
 			for (var i=0; i<container.children.length; i++) {
-				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700);
+				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700, createjs.Ease.cubicIn);
 			}
-			setTimeout(comfirmRetry, 2000);
+			setTimeout(comfirmRetryView, 2000);
 		}
-		function comfirmRetry() {
-			var confirmBox = new createjs.Container();
-			container.addChild(confirmBox);
+	}
 
-			var retryTtl =  createTtl('Do you retry?\n\nor finish?');
-			var retryBtn = createBtn('Retry');
-			retryBtn.y = h/2-33;
-			retryBtn.addEventListener('click', function() {
-				createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
-					stage.removeChild(container);
-					countDownView();
-				});
+	// RetryかFinishか選べる画面
+	function comfirmRetryView() {
+		var container = new createjs.Container();
+		stage.addChild(container);
+
+		var retryTtl =  createTtl('Do you retry?\n\nor finish?');
+		var retryBtn = createBtn('Retry');
+		retryBtn.y = h/2-33;
+		retryBtn.addEventListener('click', function() {
+			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+				stage.removeChild(container);
+				countDownView();
 			});
-			var FinishBtn = createBtn('Finish');
-			FinishBtn.y = h/2+37;
-			FinishBtn.addEventListener('click', function() {
-				createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
-					stage.removeChild(container);
-					startGameView();
-				});
+		});
+		var FinishBtn = createBtn('Finish');
+		FinishBtn.y = h/2+37;
+		FinishBtn.addEventListener('click', function() {
+			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+				stage.removeChild(container);
+				startGameView();
 			});
-			confirmBox.addChild(retryTtl, FinishBtn, retryBtn);
-			confirmBox.alpha = 0;
-			createjs.Tween.get(confirmBox).wait(100).to({ alpha:1 }, 200);
-		}
+		});
+		container.addChild(retryTtl, FinishBtn, retryBtn);
+		container.alpha = 0;
+		createjs.Tween.get(container).wait(100).to({ alpha:1 }, 200);
 	}
 }
