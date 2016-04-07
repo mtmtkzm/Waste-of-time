@@ -145,8 +145,7 @@ function startGameView() {
 	playBtn.addEventListener('click', function () {
 		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 			stage.removeChild(container);
-			// countDownView();
-			playGameView();
+			countDownView();
 		});
 	});
 	container.addChild(playBtn);
@@ -357,8 +356,8 @@ function rankingView (userscore) {
 	}).next(function(){
 		// ランキング取得後表示
 		showRanking();
-		// 勝利判定処理
-		showDecision();
+		// 3秒後に勝敗の結果をアニメーション
+		setTimeout(showDecision, 2000);
 	});
 
 	// データを取得してきて、並び替え。上位5件だけを表示。
@@ -418,18 +417,34 @@ function rankingView (userscore) {
 				num++;
 				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700);
 			}
+			setTimeout(comfirmRetry, 2000);
 		}
 		function comfirmRetry() {
-			var retryTtl =  createTtl('Do you retry?');
+			var confirmBox = new createjs.Container();
+			container.addChild(confirmBox);
+
+			var retryTtl =  createTtl('Do you retry?\n\nor finish?');
 			var retryBtn = createBtn('Retry');
-			retryBtn.y = h/2;
+			retryBtn.y = h/2-33;
 			retryBtn.addEventListener('click', function() {
+				createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+					stage.removeChild(container);
+					countDownView();
+				});
+			});
+			var FinishBtn = createBtn('Finish');
+			FinishBtn.y = h/2+37;
+			FinishBtn.addEventListener('click', function() {
 				createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 					stage.removeChild(container);
 					startGameView();
 				});
 			});
-			container.addChild(retryTtl, retryBtn);
+
+			confirmBox.addChild(retryTtl, FinishBtn, retryBtn);
+			confirmBox.alpha = 0;
+
+			createjs.Tween.get(confirmBox).wait(100).to({ alpha:1 }, 200);
 		}
 	}
 
