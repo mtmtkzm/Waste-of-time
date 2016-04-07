@@ -427,7 +427,7 @@ function rankingView (userscore) {
 			createPetal();
 		} else {
 			for (var i=0; i<container.children.length; i++) {
-				createjs.Tween.get(container.children[i]).wait(i*100+2000).to({ y:h }, 500, createjs.Ease.cubicIn);
+				createjs.Tween.get(container.children[i]).wait(i*100+2800).to({ y:h }, 750, createjs.Ease.cubicIn);
 			}
 		}
 		setTimeout(function () {
