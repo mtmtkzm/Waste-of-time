@@ -95,7 +95,7 @@ function startGameView() {
 	var ttlLabel = createTtl('Goofing Around');
 	container.addChild(ttlLabel);
 	// 説明のラベル
-	var descriptionLabel = new createjs.Text('', "12px 'VT323'", black);
+	var descriptionLabel = new createjs.Text('', "12px 'sans-serif'", black);
 	descriptionLabel.text = '等間隔で無数に出現する敵を\nタップするだけの単純なゲーム。\n\nランダムな場所に現れるオブジェクトを、\n次のオブジェクトが出現するまでにタップしよう。';
 	descriptionLabel.x = w/2;
 	descriptionLabel.y = h/2;
@@ -293,7 +293,7 @@ function resultView(userscore) {
 	});
 
 	// リアルタイム名前描画する場所
-	var tempNameArea = new createjs.Text('', '24px sans-serif', black);
+	var tempNameArea = new createjs.Text('', "24px 'sans-serif'", black);
 	tempNameArea.x = nameArea.x + 10;
 	tempNameArea.y = nameArea.y + 12;
 	container.addChild(nameArea, tempNameArea);
@@ -396,10 +396,10 @@ function rankingView (userscore) {
 			rankOrder.x = w/2 - 140;
 			rankOrder.y = h/2 + 11 + (i-3)*50;
 			// 名前
-			var rankName = new createjs.Text('', "20px 'Noto Sans Japanese'", black);
+			var rankName = new createjs.Text('', "20px 'sans-serif'", black);
 			rankName.text = ranking[i].value.name;
 			rankName.x = w/2 - 110;
-			rankName.y = h/2 + 17 + (i-3)*50;
+			rankName.y = h/2 + 21 + (i-3)*50;
 			// スコア
 			var rankScore = new createjs.Text('', "28px 'VT323'", black);
 			rankScore.text = ranking[i].value.score + 'p';
