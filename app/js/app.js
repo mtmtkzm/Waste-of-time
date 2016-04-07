@@ -410,11 +410,10 @@ function rankingView (userscore) {
 	// 勝敗を祝う
 	function showDecision() {
 		if (winner) { // ランクインのとき
-			console.log('you win');
+			setTimeout(comfirmRetry, 2000);
 		} else { // ランク外のとき
-			var num = 0;
+			// 文字を全部下に落とす
 			for (var i=0; i<container.children.length; i++) {
-				num++;
 				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700);
 			}
 			setTimeout(comfirmRetry, 2000);
@@ -440,12 +439,9 @@ function rankingView (userscore) {
 					startGameView();
 				});
 			});
-
 			confirmBox.addChild(retryTtl, FinishBtn, retryBtn);
 			confirmBox.alpha = 0;
-
 			createjs.Tween.get(confirmBox).wait(100).to({ alpha:1 }, 200);
 		}
 	}
-
 }
