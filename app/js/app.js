@@ -361,15 +361,6 @@ function rankingView (userscore) {
 		showDecision();
 	});
 
-	// 勝敗を祝う
-	function showDecision() {
-		if (winner) { // ランクインのとき
-			console.log('Your Winner!');
-		} else { // ランク外のとき
-			console.log('Your Loser..');
-		}
-	}
-
 	// データを取得してきて、並び替え。上位5件だけを表示。
 	function getRanking (all) {
 		all.sort(function(a,b) {
@@ -386,8 +377,6 @@ function rankingView (userscore) {
 		var ttlLabel = createTtl('Score Ranking:');
 		container.addChild(ttlLabel);
 
-		console.log(container);
-
 		// ランキングの区切り線を描画
 		for (var i=0; i<4; i++) {
 			var line = new createjs.Shape();
@@ -396,7 +385,7 @@ function rankingView (userscore) {
 			line.regX = 150;
 			line.x = w/2;
 			line.y = h/2 + (i-2)*50;
-			container.addChild(line);
+			// container.addChild(line);
 		}
 		// ランキング、スコア、名前を描画
 		for (var i=0; i<5; i++) {
@@ -417,14 +406,31 @@ function rankingView (userscore) {
 			rankScore.textAlign = 'right';
 			container.addChild(rankOrder, rankName, rankScore);
 		}
-
-		var retryBtn = createBtn('Retry');
-		retryBtn.addEventListener('click', function() {
-			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
-				stage.removeChild(container);
-				startGameView();
-			});
-		})
-		container.addChild(retryBtn);
 	}
+
+	// 勝敗を祝う
+	function showDecision() {
+		if (winner) { // ランクインのとき
+			console.log('you win');
+		} else { // ランク外のとき
+			var num = 0;
+			for (var i=0; i<container.children.length; i++) {
+				num++;
+				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700);
+			}
+		}
+		function comfirmRetry() {
+			var retryTtl =  createTtl('Do you retry?');
+			var retryBtn = createBtn('Retry');
+			retryBtn.y = h/2;
+			retryBtn.addEventListener('click', function() {
+				createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+					stage.removeChild(container);
+					startGameView();
+				});
+			});
+			container.addChild(retryTtl, retryBtn);
+		}
+	}
+
 }
