@@ -209,9 +209,10 @@ function playGameView() {
 		}
 		var rx = Math.random() * (ww-100); // 0 ~ ww-100
 		var ry = Math.random() * (wh-200) + 100; // 100 ~ wh-100
+		var enemySize = 70*Math.random() + 30;
 		enemy = new createjs.Shape();
 		enemy.graphics.beginFill(black);
-		enemy.graphics.drawPolyStar(rx, ry, 70*Math.random() + 30 , 7, 0, -90);
+		enemy.graphics.drawPolyStar(rx, ry, enemySize, 7, 0, -90);
 		container.addChild(enemy);
 		enemylife = true;
 		enemy.addEventListener('click', removeEnemy);
@@ -220,7 +221,9 @@ function playGameView() {
 
 	// 敵をタップで削除する
 	function removeEnemy() {
-		container.removeChild(enemy);
+		createjs.Tween.get(enemy).to({ alpha:0 }, 100).call(function () {
+			container.removeChild(enemy);
+		});
 		enemylife = false;
 		score++;
 		scoreArea.text = String(score);
