@@ -145,7 +145,8 @@ function startGameView() {
 	playBtn.addEventListener('click', function () {
 		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 			stage.removeChild(container);
-			countDownView();
+			// countDownView();
+			playGameView();
 		});
 	});
 	container.addChild(playBtn);
@@ -221,12 +222,12 @@ function playGameView() {
 
 	// 敵をタップで削除する
 	function removeEnemy() {
-		createjs.Tween.get(enemy).to({ alpha:0 }, 100).call(function () {
-			container.removeChild(enemy);
-		});
 		enemylife = false;
 		score++;
 		scoreArea.text = String(score);
+		createjs.Tween.get(enemy).to({ alpha:0 }, 100).call(function () {
+			container.removeChild(enemy);
+		});
 	}
 
 	// ゲームオーバー判定
@@ -360,7 +361,7 @@ function rankingView (userscore) {
 		// ランキング取得後表示
 		showRanking();
 		// 3秒後に勝敗の結果をアニメーション
-		setTimeout(showDecision, 2000);
+		showDecision();
 	});
 
 	// データを取得してきて、並び替え。上位5件だけを表示。
@@ -379,16 +380,6 @@ function rankingView (userscore) {
 		var ttlLabel = createTtl('Score Ranking:');
 		container.addChild(ttlLabel);
 
-		// ランキングの区切り線を描画
-		for (var i=0; i<4; i++) {
-			var line = new createjs.Shape();
-			line.graphics.beginFill(black);
-			line.graphics.drawRoundRect(0, 0, 300, 2, 2);
-			line.regX = 150;
-			line.x = w/2;
-			line.y = h/2 + (i-2)*50;
-			// container.addChild(line);
-		}
 		// ランキング、スコア、名前を描画
 		for (var i=0; i<5; i++) {
 			// 順位
@@ -413,41 +404,61 @@ function rankingView (userscore) {
 	// 勝敗を祝う
 	function showDecision() {
 		if (winner) { // ランクインのとき
-			stage.removeChild(container);
-			comfirmRetryView();
+			var petalNum = 0;
+			var petal = new Array();
+
+			createPetal();
+			function createPetal () {
+				petal[petalNum] = new createjs.Shape();
+				petal[petalNum].graphics.beginFill(accent).drawCircle(Math.random()*w, Math.random()*(h/3), Math.random()*7+5);
+				petal[petalNum].alpha = 0;
+				container.addChild(petal[petalNum]);
+				createjs.Tween.get(petal[petalNum]).to({ alpha:Math.random()-0.2 }, 200);
+				createjs.Tween.get(petal[petalNum]).to({ y: h+200 }, Math.random()*2000 + 3500).call(function(){
+					container.removeChild(petal[petalNum]);
+				});
+				petalNum++;
+				setTimeout(createPetal, 70);
+			}
 		} else { // ランク外のとき
 			// 文字を全部下に落とす
 			for (var i=0; i<container.children.length; i++) {
-				createjs.Tween.get(container.children[i]).wait(i*100+100).to({ y:h }, 700, createjs.Ease.cubicIn);
+				createjs.Tween.get(container.children[i]).wait(i*100+2000).to({ y:h }, 500, createjs.Ease.cubicIn);
 			}
-			setTimeout(comfirmRetryView, 2000);
 		}
-	}
-
-	// RetryかFinishか選べる画面
-	function comfirmRetryView() {
-		var container = new createjs.Container();
-		stage.addChild(container);
-
-		var retryTtl =  createTtl('Do you retry?\n\nor finish?');
-		var retryBtn = createBtn('Retry');
-		retryBtn.y = h/2-33;
-		retryBtn.addEventListener('click', function() {
+		setTimeout(function () {
 			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
 				stage.removeChild(container);
-				countDownView();
+				comfirmRetryView();
 			});
-		});
-		var FinishBtn = createBtn('Finish');
-		FinishBtn.y = h/2+37;
-		FinishBtn.addEventListener('click', function() {
-			createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
-				stage.removeChild(container);
-				startGameView();
-			});
-		});
-		container.addChild(retryTtl, FinishBtn, retryBtn);
-		container.alpha = 0;
-		createjs.Tween.get(container).wait(100).to({ alpha:1 }, 200);
+		}, 4500);
 	}
+}
+
+/* リトライ？フィニッシュ？
+------------------------------ */
+function comfirmRetryView() {
+	var container = new createjs.Container();
+	stage.addChild(container);
+
+	var retryTtl =  createTtl('Do you retry?\n\nor finish?');
+	var retryBtn = createBtn('Retry');
+	retryBtn.y = h/2-33;
+	retryBtn.addEventListener('click', function() {
+		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+			stage.removeChild(container);
+			countDownView();
+		});
+	});
+	var FinishBtn = createBtn('Finish');
+	FinishBtn.y = h/2+37;
+	FinishBtn.addEventListener('click', function() {
+		createjs.Tween.get(container).wait(100).to({ alpha:0 }, 200).wait(100).call(function () {
+			stage.removeChild(container);
+			startGameView();
+		});
+	});
+	container.addChild(retryTtl, FinishBtn, retryBtn);
+	container.alpha = 0;
+	createjs.Tween.get(container).wait(100).to({ alpha:1 }, 200);
 }
