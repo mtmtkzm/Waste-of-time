@@ -191,7 +191,7 @@ function playGameView() {
 	var container = new createjs.Container();
 	stage.addChild(container);
 
-	var interval = 1000;
+	var interval = 1500;
 	var score = 0;
 	var enemylife = false;
 	var gameover = false;
