@@ -41,12 +41,11 @@ function initialize() {
 	w = stage.canvas.width;
 	h = stage.canvas.height;
 	manifest = [
-		{ src: 'enemy/enemy.png', id: 'enemy' },
 		{ src: 'hand.png', id: 'hand' }
 	];
 	loader = new createjs.LoadQueue(false);
 	loader.addEventListener('complete', startGameView);
-	loader.loadManifest(manifest, true, '../assets/');
+	loader.loadManifest(manifest, true, 'assets/');
 }
 
 /* tickの処理（ステージを常に更新する）
@@ -103,7 +102,7 @@ function startGameView() {
 	stage.addChild(container);
 
 	// タイトルラベル
-	var ttlLabel = createTtl('Goofing Around');
+	var ttlLabel = createTtl('Waste of Time');
 	container.addChild(ttlLabel);
 	// 説明のラベル
 	var descriptionLabel = new createjs.Text('', "12px 'sans-serif'", black);
@@ -114,7 +113,6 @@ function startGameView() {
 	descriptionLabel.lineHeight = 18;
 	descriptionLabel.textAlign = 'center';
 	container.addChild(descriptionLabel);
-
 
 	// サンプル動作するチュートリアル表示
 	// チュートリアルの表示領域を取得
@@ -444,7 +442,7 @@ function rankingView (userscore) {
 function comfirmRetryView() {
 	var container = new createjs.Container();
 	stage.addChild(container);
-	var retryTtl =  createTtl('Do you retry?\n\nor finish?');
+	var retryTtl =  createTtl('Do you\n\nretry? finish?');
 	var retryBtn = createBtn('Retry');
 	retryBtn.y = h/2-33;
 	retryBtn.addEventListener('click', function() {
