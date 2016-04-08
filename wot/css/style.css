@@ -25,7 +25,7 @@ canvas#stage {
 	display: none;
 }
 
-@media screen and (min-width: 1024px) {
+@media screen and (min-width: 1025px) {
 	canvas#stage {
 		display: none;
 	}
